@@ -15,12 +15,25 @@ class Database{
         }
     }
 
-    public function insert($fname, $lname, $email, $phone){
+    public function insert($data) {
         $sql = "INSERT INTO users (first_name, last_name, email, phone) VALUES (:fname, :lname, :email, :phone)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['fname' => $fname,'lname' => $lname, 'email' => $email, 'phone' => $phone]);
+        $stmt->execute([
+            'fname' => $data['fname'],
+            'lname' => $data['lname'],
+            'email' => $data['email'],
+            'phone' => $data['phone']
+        ]);
+
+        if ($db->insert($data)) {
+            echo "Data inserted successfully.";
+        } else {
+            echo "Failed to insert data.";
+        }
+        
         return true;
     }
+    
 
     public function read(){
         $data = array();
@@ -64,9 +77,3 @@ class Database{
         return $t_rows;
     }
 }
-
-$ob = new Database();
-
-print_r($ob->totalRowCount());
-
-?>

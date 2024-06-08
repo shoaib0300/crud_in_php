@@ -50,40 +50,6 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="table-responsive" id="showUser">
-                    <table class="table table-striped table-sm table-bordered">
-                        <thead>
-                            <tr class="text-center">
-                                <th>ID</th>
-                                <th>Email</th>
-                                <th>Last Name</th>
-                                <th>First Name</th>
-                                <th>Phone</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php for($i=1; $i<=100; $i++): ?>
-                            <tr class="text-center text-secondary">
-                                <td><?= $i ?></td>
-                                <td>user<?= $i ?>@gmail.com</td>
-                                <td>title <?= $i ?></td>
-                                <td>first <?= $i ?></td>
-                                <td>625472424</td>
-                                <td>
-                                    <a href="#" title="View Deatils" class="text-sucsses">
-                                        <i class="fa-solid fa-circle-info"></i>&nbsp;
-                                    </a>
-                                    <a href="#" title="Edit" class="text-primary">
-                                        <i class="fas fa-edit fa-lg"></i>&nbsp;
-                                    </a>
-                                    <a href="#" title="Delete" class="text-danger">
-                                        <i class="fas fa-trash fa-lg"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php endfor; ?>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -120,14 +86,47 @@
         </div>
     </div>
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js">
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/v/bs4/dt-2.0.8/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $("table").DataTable();
+            showAllUsers();
+            function showAllUsers(){
+                $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: {action: "view"},
+                    success:function(respose){
+                        $("#showUser").html(respose);
+                        $("table").DataTable({
+                            order: [0, 'desc']
+                        });
+                    }
+                })
+            }
+
+            $("#insert").click(function(e){
+                if($("#form-data")[0].checkValidity()){
+                    e.preventDefault();
+                    $.ajax({
+                        url: "action.php",
+                        type: "POST",
+                        data: $("#form-data").serialize()+"&action=insert",
+                        success:function(respose){
+                            Swal.fire({
+                                title: 'User added successfully!',
+                                type: 'Sucess'
+                            })
+                            $("#addUserModal").modal('hide');
+                            $("#for-data")[0].reset();
+                            showAllUsers();
+                        }
+                    })
+                }
+            })
         });
     </script>
 </body>
