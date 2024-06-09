@@ -56,34 +56,69 @@
     </div>
     <!-- Add new User model -->
     <div class="modal fade" id="addUserModal">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Add new User</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <!-- Modal body -->
-            <div class="modal-body px-4">
-                <form action="" method="post" id="form-data">
-                    <div class="form-group">
-                        <input type="text" name="fname" class="form-control" placeholder="First Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="lname" class="form-control" placeholder="Last Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" name="email" class="form-control" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" name="phone" class="form-control" placeholder="Phone NUmber" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" name="insert" id="insert" value="Add User" class="btn btn-danger btn-block" placeholder="First Name" required>
-                    </div>
-                </form>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Add new User</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body px-4">
+                    <form action="" method="post" id="form-data">
+                        <div class="form-group">
+                            <input type="text" name="fname" class="form-control" placeholder="First Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="lname" class="form-control" placeholder="Last Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" class="form-control" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="phone" class="form-control" placeholder="Phone NUmber" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" name="insert" id="insert" value="Add User" class="btn btn-danger btn-block" placeholder="First Name" required>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Edit User model -->
+    <div class="modal fade" id="editUserModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit User</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body px-4">
+                    <form action="" method="post" id="edit-form-data">
+                        <input type="hidden" name="id" id="id">
+                        <div class="form-group">
+                            <input type="text" name="fname" id="fname" class="form-control" placeholder="First Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="lname" id="lname" class="form-control" placeholder="Last Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" id="email" class="form-control" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="phone" id="phone" class="form-control" placeholder="Phone NUmber" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" name="edit" id="update" value="Update" class="btn btn-danger btn-block" required>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>    
     </div>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.1.1.min.js">
@@ -99,8 +134,8 @@
                     url: "action.php",
                     type: "POST",
                     data: {action: "view"},
-                    success:function(respose){
-                        $("#showUser").html(respose);
+                    success:function(response){
+                        $("#showUser").html(response);
                         $("table").DataTable({
                             order: [0, 'desc']
                         });
@@ -115,18 +150,95 @@
                         url: "action.php",
                         type: "POST",
                         data: $("#form-data").serialize()+"&action=insert",
-                        success:function(respose){
+                        success:function(response){
                             Swal.fire({
                                 title: 'User added successfully!',
                                 type: 'Sucess'
                             })
                             $("#addUserModal").modal('hide');
-                            $("#for-data")[0].reset();
+                            $("#form-data")[0].reset();
                             showAllUsers();
                         }
                     })
                 }
             })
+
+            $(document).ready(function() {
+                $("#update").click(function(e) {
+                    if($("#edit-form-data")[0].checkValidity()){
+                        e.preventDefault();
+                        $.ajax({
+                            url: "action.php",
+                            type: "POST",
+                            data: $("#edit-form-data").serialize() + "&action=update",
+                            success: function(response) {
+                                Swal.fire({
+                                    title: 'User updated successfully!',
+                                    icon: 'success'
+                                });
+                                $("#editUserModal").modal('hide');
+                                $("#edit-form-data")[0].reset();
+                                showAllUsers(); 
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("AJAX Error: " + status + ": " + error);
+                            }
+                        });
+                    }
+                });
+            });
+
+
+            $("body").on("click", ".editBtn", function(e){
+                e.preventDefault();
+                edit_id = $(this).attr('id');
+                $.ajax({
+                    url:"action.php",
+                    type:"POST",
+                    data:{edit_id:edit_id},
+                    success:function(response){
+                        // covert data into javascript object
+                        data = JSON.parse(response);
+                        $("#id").val(data.id);
+                        $("#fname").val(data.first_name);
+                        $("#lname").val(data.last_name);
+                        $("#email").val(data.email);
+                        $("#phone").val(data.phone);
+                    }
+                });
+            });
+
+            $("body").on("click", ".delBtn", function(e){
+                e.preventDefault();
+                var tr = $(this).closest('tr');
+                delete_id = $(this).attr('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "action.php",
+                            type: "POST",
+                            data:{delete_id:delete_id},
+                            success:function(response){
+                                tr.css('background-color', '#ff6666');
+                                Swal.fire(
+                                    'Deleted!',
+                                    'User Deleted successfully',
+                                    'Success'
+                                )
+                                showAllUsers();
+                            }
+                        })
+                    }
+                    });
+            });
         });
     </script>
 </body>

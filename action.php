@@ -27,13 +27,15 @@ if(isset($_POST['action']) && $_POST['action'] == "view"){
             <td> '. $row['email'] .' </td>
             <td> '. $row['phone'] .' </td>
             <td>
-                <a href="#" title="View Deatils" class="text-sucsses">
+                <a href="#" id="'. $row['id'] .'" title="View Deatils" class="text-sucsses infoBtn">
                     <i class="fa-solid fa-circle-info"></i>&nbsp;
                 </a>
-                <a href="#" title="Edit" class="text-primary">
+
+                <a href="#" id="'. $row['id'] .'" title="Edit" class="text-primary editBtn" data-toggle="modal" data-target="#editUserModal">
                     <i class="fas fa-edit fa-lg"></i>&nbsp;
                 </a>
-                <a href="#" title="Delete" class="text-danger">
+
+                <a href="#" id="'. $row['id'] .'" title="Delete" class="text-danger delBtn">
                     <i class="fas fa-trash fa-lg"></i>
                 </a>
             </td>
@@ -57,8 +59,31 @@ if(isset($_POST['action']) && $_POST['action'] == "insert"){
         'email' => $_POST['email'],
         'phone' => $_POST['phone'],
     ];
-    
     $db->insert($data);
-    
+}
 
+if (isset($_POST['edit_id'])) {
+    $id = $_POST['edit_id'];
+    $row = $db->getUserByID($id);
+    echo json_encode($row);
+}
+
+if (isset($_POST['action']) && $_POST['action'] == "update") {
+    $id = $_POST['id'];
+    $data = [
+        'fname' => $_POST['fname'],
+        'lname' => $_POST['lname'],
+        'email' => $_POST['email'],
+        'phone' => $_POST['phone']
+    ];
+    $row = $db->update($id, $data);
+}
+
+if (isset($_POST['delete_id'])) {
+    $id = $_POST['delete_id'];
+    if ($db->delete($id)) {
+        echo json_encode(["status" => "success"]);
+    } else {
+        echo json_encode(["status" => "error"]);
+    }
 }

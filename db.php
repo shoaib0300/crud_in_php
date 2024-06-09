@@ -24,13 +24,6 @@ class Database{
             'email' => $data['email'],
             'phone' => $data['phone']
         ]);
-
-        if ($db->insert($data)) {
-            echo "Data inserted successfully.";
-        } else {
-            echo "Failed to insert data.";
-        }
-        
         return true;
     }
     
@@ -55,15 +48,21 @@ class Database{
         return $result;
     }
 
-    public function update($id, $fname, $lname, $email, $phone){
+    public function update($id, $data) {
         $sql = "UPDATE users SET first_name = :fname, last_name = :lname, email = :email, phone = :phone WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['fname' => $fname,'lname' => $lname, 'email' => $email, 'phone' => $phone]);
+        $stmt->execute([
+            'id' => $id,
+            'fname' => $data['fname'],
+            'lname' => $data['lname'],
+            'email' => $data['email'],
+            'phone' => $data['phone']
+        ]);
         return true;
     }
 
     public function delete($id){
-        $sql = "DELETE users SET WHERE id = :id";
+        $sql = "DELETE FROM users WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(['id' => $id]);
         return true;
